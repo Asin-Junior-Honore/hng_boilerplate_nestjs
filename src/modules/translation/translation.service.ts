@@ -9,15 +9,19 @@ export class TextService {
     const genAI = new GoogleGenerativeAI(process.env.OPENAI_API_KEY);
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
-
   async translateText(text: string, targetLanguage: string): Promise<string> {
-    const prompt = `Please provide a direct translation of the following text to ${targetLanguage}, without any additional context or explanations:\n\n"${text}"`;
+    try {
+      const prompt = `Please provide a direct translation of the following text to ${targetLanguage}, without any additional context or explanations:\n\n"${text}"`;
 
-    const result = await this.model.generateContent(prompt);
-    const response = await result.response;
-    let translatedText = await response.text();
-    translatedText = translatedText.replace(/^"|"$/g, '').trim();
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      let translatedText = await response.text();
+      translatedText = translatedText.replace(/^"|"$/g, '').trim();
 
-    return translatedText;
+      return translatedText;
+    } catch (error) {
+      console.error('Translation failed:', error.message);
+      throw new Error('Failed to translate text');
+    }
   }
 }
